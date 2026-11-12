@@ -10,3 +10,6 @@ inputs/
 *.mp3
 *.wav
 *.m4a
+
+# all generated project outputs
+outputs/
