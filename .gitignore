@@ -12,4 +12,5 @@ inputs/
 *.m4a
 
 # all generated project outputs
-outputs/
+outputs/*
+!outputs/.gitkeep
