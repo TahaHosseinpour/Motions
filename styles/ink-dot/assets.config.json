@@ -1,0 +1,12 @@
+{
+  "reference": "reference/character-sheet.png",
+  "referenceNote": "Always send this sheet to the image model together with the prompt. Never generate from text alone.",
+  "stylePrompt": "Hand-drawn black marker doodle in EXACTLY the same style as the attached reference sheet: round-head stick figures with simple dot eyes, one uniform black line weight, slightly wobbly hand-drawn strokes, flat line art. No shading, no gradients, no gray, no color. Pure white background (#FFFFFF). One isolated subject, centered, with generous empty margin around it. No text, no letters, no numbers, no frame, no shadow, no ground line unless asked.",
+  "defaultSize": "1024x1024",
+  "format": "png",
+  "notes": [
+    "White background is dropped in the video with multiply blending — so it must be PURE white, not off-white.",
+    "Keep the subject readable at small size (~500px on a 1080px-wide reel).",
+    "Text inside images is forbidden: all words come from the captions."
+  ]
+}

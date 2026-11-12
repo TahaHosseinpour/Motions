@@ -1,0 +1,61 @@
+{
+  "title": "تورم چیه؟ به زبان ساده",
+  "style": "ink-dot",
+  "beats": [
+    {
+      "scene": "bill",
+      "seconds": 2.2,
+      "captionPos": "bottom",
+      "caption": "پارسال با *صد هزار تومن*"
+    },
+    {
+      "scene": "loaves-buy",
+      "seconds": 2.6,
+      "captionPos": "top",
+      "caption": "*ده تا* نون می‌خریدی."
+    },
+    {
+      "scene": "timeline",
+      "seconds": 2.2,
+      "captionPos": "bottom",
+      "caption": "امسال، با *همون* پول",
+      "props": {
+        "from": "پارسال",
+        "to": "امسال"
+      }
+    },
+    {
+      "scene": "loaves-loss",
+      "seconds": 2.4,
+      "captionPos": "top",
+      "caption": "فقط *هفت تا.*",
+      "props": {
+        "lose": 3
+      }
+    },
+    {
+      "scene": "equal",
+      "seconds": 2.2,
+      "captionPos": "bottom",
+      "caption": "پولت *کم نشده…*"
+    },
+    {
+      "scene": "leak",
+      "seconds": 2.6,
+      "captionPos": "bottom",
+      "caption": "فقط *ارزشش* آب رفته."
+    },
+    {
+      "scene": "chart",
+      "seconds": 2.2,
+      "captionPos": "top",
+      "caption": "اسم این اتفاق *تورمه.*"
+    },
+    {
+      "scene": "shrink",
+      "seconds": 3.6,
+      "captionPos": "bottom",
+      "caption": "پولی که یه جا بمونه،\nهر روز *کوچیک‌تر* می‌شه."
+    }
+  ]
+}

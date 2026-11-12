@@ -1,0 +1,12 @@
+node_modules
+.env
+outputs/**/*.mp4
+outputs/**/still-*.png
+assets/fonts/
+
+# personal voice recordings
+inputs/
+*.ogg
+*.mp3
+*.wav
+*.m4a
