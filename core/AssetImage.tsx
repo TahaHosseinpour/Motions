@@ -1,10 +1,13 @@
 // Generated image assets (outputs/<project>/assets/<id>.png).
+// tools/assets.mjs and tools/render.mjs strip the background to alpha=0 and
+// normalize strokes to warm white (#F4F1EA) via tools/lib/nobg.mjs.
 // tools/render.mjs injects `availableAssets` into the story; anything missing
 // renders as a dashed placeholder so a reel can be previewed before images exist.
 import React, { createContext, useContext } from "react";
 import { staticFile } from "remotion";
 
 export const AssetsContext = createContext<string[]>([]);
+export const AssetBaseContext = createContext<string | undefined>(undefined);
 
 export const AssetImage: React.FC<{
   id: string;
@@ -17,27 +20,32 @@ export const AssetImage: React.FC<{
   p?: number;
   /** wipe = right→left reveal like drawing (RTL); pop = scale; fade = opacity */
   reveal?: "wipe" | "pop" | "fade";
-  /** placeholder colors */
+  /** stroke / placeholder ink color */
   ink?: string;
   font?: string;
-}> = ({ id, x, y, w, h, p = 1, reveal = "wipe", ink = "#151515", font = "sans-serif" }) => {
+}> = ({ id, x, y, w, h, p = 1, reveal = "wipe", ink = "#F4F1EA", font = "sans-serif" }) => {
   const available = useContext(AssetsContext);
+  const baseUrl = useContext(AssetBaseContext);
   const has = available.includes(id);
-  const clipId = `asset-clip-${id}`;
+  const clipId = `asset-clip-${id}-${Math.round(x)}-${Math.round(y)}`;
+  // Transparent-background PNG strokes are tinted to the theme's ink color (white on dark theme, dark on light theme).
+  const [r, g, b] = /^#[0-9a-f]{6}$/i.test(ink) ? [1, 3, 5].map((i) => parseInt(ink.slice(i, i + 2), 16) / 255) : [0.957, 0.945, 0.918];
+  const filterId = `asset-ink-${id}-${Math.round(x)}-${Math.round(y)}`;
   const left = x - w / 2;
   const top = y - h / 2;
   const scale = reveal === "pop" ? p : 1;
   const opacity = reveal === "fade" ? p : reveal === "pop" ? Math.min(1, p * 2) : 1;
+  const href = baseUrl ? `${baseUrl}/${id}.png` : staticFile(`assets/${id}.png`);
 
   const body = has ? (
     <image
-      href={staticFile(`assets/${id}.png`)}
+      href={href}
       x={left}
       y={top}
       width={w}
       height={h}
       preserveAspectRatio="xMidYMid meet"
-      filter="url(#asset-white-to-alpha)"
+      filter={`url(#${filterId})`}
     />
   ) : (
     <g>
@@ -50,10 +58,10 @@ export const AssetImage: React.FC<{
 
   return (
     <g opacity={opacity} transform={`translate(${x} ${y}) scale(${scale}) translate(${-x} ${-y})`}>
-      {/* Line art on white → white becomes transparent (alpha = A − luminance), so it sits on any paper.
-          Using A (not 1) keeps already-transparent pixels/edges transparent. */}
-      <filter id="asset-white-to-alpha" colorInterpolationFilters="sRGB" x="0" y="0" width="1" height="1">
-        <feColorMatrix type="matrix" values="1 0 0 0 0  0 1 0 0 0  0 0 1 0 0  -0.2126 -0.7152 -0.0722 1 0" />
+      {/* Asset PNGs have transparent background (alpha = 0) and white strokes;
+          this filter preserves alpha (A_out = A_in) and sets RGB to the active theme ink. */}
+      <filter id={filterId} colorInterpolationFilters="sRGB" x="0" y="0" width="1" height="1">
+        <feColorMatrix type="matrix" values={`0 0 0 0 ${r}  0 0 0 0 ${g}  0 0 0 0 ${b}  0 0 0 1 0`} />
       </filter>
       {reveal === "wipe" && (
         <clipPath id={clipId}>

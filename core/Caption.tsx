@@ -1,5 +1,6 @@
 import React from "react";
 import { ease, tween } from "./anim";
+import { stripDiacritics } from "./text";
 
 /** RTL caption with a soft word-by-word reveal. Splitting on spaces is safe
  *  for Persian (letters never join across a space).
@@ -19,6 +20,11 @@ export const Caption: React.FC<{
   fontWeight?: number;
   stagger?: number;
   highlight?: string;
+  /** Text color of highlighted words (dark ink on the yellow marker, even on a dark theme). */
+  markColor?: string;
+  /** Horizontal center of the caption block (default: frame center). */
+  x?: number;
+  maxWidth?: number;
 }> = ({
   text,
   f,
@@ -30,19 +36,20 @@ export const Caption: React.FC<{
   fontWeight = 500,
   stagger = 3,
   highlight = "#FFD84A",
+  markColor,
+  x,
+  maxWidth = 820,
 }) => {
   let n = 0;
   let inMark = false;
-  const lines = text.split("\n").map((l) =>
+  const lines = stripDiacritics(text).split("\n").map((l) =>
     l
       .split(/\s+/)
       .filter(Boolean)
       .map((raw) => {
-        let w = raw;
-        const opens = w.startsWith("*");
-        if (opens) w = w.slice(1);
-        const closes = w.endsWith("*");
-        if (closes) w = w.slice(0, -1);
+        const opens = /^«?\*/.test(raw);
+        const closes = /\*[،.؟!»:؛)]*$/.test(raw);
+        const w = raw.replace(/\*/g, "");
         if (opens) inMark = true;
         const mark = inMark;
         if (closes) inMark = false;
@@ -56,8 +63,8 @@ export const Caption: React.FC<{
     <div
       style={{
         position: "absolute",
-        left: 0,
-        right: 0,
+        left: x === undefined ? 0 : x - maxWidth / 2,
+        ...(x === undefined ? { right: 0 } : { width: maxWidth }),
         top: y,
         transform: "translateY(-50%)",
         display: "flex",
@@ -69,7 +76,7 @@ export const Caption: React.FC<{
         style={{
           direction: "rtl",
           textAlign: "center",
-          maxWidth: 820,
+          maxWidth,
           fontFamily,
           fontSize,
           fontWeight,
@@ -93,6 +100,7 @@ export const Caption: React.FC<{
                       opacity: p,
                       transform: `translateY(${(1 - p) * 14}px)`,
                       filter: `blur(${(1 - p) * 6}px)`,
+                      color: mark && markColor && hp > 0.35 ? markColor : undefined,
                     }}
                   >
                     {mark && (
@@ -102,8 +110,8 @@ export const Caption: React.FC<{
                           zIndex: -1,
                           left: -10,
                           right: -10,
-                          top: "34%",
-                          bottom: "10%",
+                          top: "8%",
+                          bottom: "8%",
                           background: highlight,
                           borderRadius: 8,
                           transformOrigin: "right center",

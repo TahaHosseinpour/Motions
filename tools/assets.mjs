@@ -2,24 +2,27 @@
 // Image-asset pipeline for a project.
 //
 //   npm run assets -- <project> prompts         write assets/PROMPTS.md (+ copy the reference sheet next to it)
-//   npm run assets -- <project> check           which images exist / are missing; refreshes the table in PLAN.md
+//   npm run assets -- <project> check           strip backgrounds + convert strokes to white (#F4F1EA), then check & refresh PLAN.md
+//   npm run assets -- <project> nobg            force background removal & white-stroke normalization on all assets/*.png
 //   npm run assets -- <project> generate [id]   (optional) generate via image API — ALWAYS with the reference sheet attached
 //
 // Manifest: outputs/<project>/assets.json
 //   { "assets": [ { "id": "shopper", "beat": 4, "subject": "...", "size": "1024x1024", "notes": "" } ] }
 // Images go to: outputs/<project>/assets/<id>.png   (used in story.json scenes by id)
 //
-// The style (from story.json) decides the look: styles/<style>/assets.config.json
-// holds the shared style prompt and the reference sheet path.
+// Every asset image in outputs/<project>/assets/<id>.png is automatically processed by
+// tools/lib/nobg.mjs so its background is 100% transparent (alpha = 0) and its strokes
+// are warm white (#F4F1EA), ready to sit cleanly on the dark canvas.
 import { copyFileSync, existsSync, mkdirSync, readFileSync, writeFileSync } from "node:fs";
 import { basename, join, resolve } from "node:path";
+import { cleanAssetPng, cleanProjectAssets } from "./lib/nobg.mjs";
 
 const root = resolve(import.meta.dirname, "..");
 if (existsSync(join(root, ".env"))) process.loadEnvFile(join(root, ".env"));
 
 const [project, cmd = "prompts", onlyId] = process.argv.slice(2);
 if (!project) {
-  console.error("usage: npm run assets -- <project> [prompts|check|generate [id]]");
+  console.error("usage: npm run assets -- <project> [prompts|check|nobg|generate [id]]");
   process.exit(1);
 }
 
@@ -60,7 +63,8 @@ if (cmd === "prompts") {
     `> **Attach \`${refName}\` (in this folder) to EVERY generation.** It is the character sheet;`,
     "> the model must copy its line style. Do not generate from text alone.",
     ">",
-    `> Save each result as \`assets/<id>.png\` (pure white background), then run \`npm run assets -- ${project} check\`.`,
+    `> Save each result as \`assets/<id>.png\`, then run \`npm run assets -- ${project} check\`.`,
+    "> `check` automatically removes the background (alpha = 0) and turns the lines warm white (`#F4F1EA`).",
     "",
     ...list.flatMap((a) => [
       `## \`${a.id}\`  ·  beat ${a.beat ?? "-"}  ·  ${a.size ?? cfg.defaultSize}`,
@@ -77,17 +81,23 @@ if (cmd === "prompts") {
   console.log(`✓ ${list.length} prompt(s) → ${join(assetsDir, "PROMPTS.md")}\n✓ reference sheet → ${join(assetsDir, refName)}`);
 }
 
-// ── check (+ refresh PLAN.md) ────────────────────────────────────────────
-if (cmd === "check" || cmd === "prompts") {
+// ── nobg / check (+ refresh PLAN.md) ─────────────────────────────────────
+if (cmd === "nobg" || cmd === "check" || cmd === "prompts") {
+  const cleaned = cleanProjectAssets(assetsDir, { force: cmd === "nobg" });
+  for (const c of cleaned) {
+    if (!c.skipped) console.log(`✓ nobg + white ink (${c.mode}) → ${c.file}`);
+  }
   const rows = manifest.assets.map((a) => ({ a, ok: existsSync(fileFor(a)) }));
-  if (cmd === "check") for (const { a, ok } of rows) console.log(`${ok ? "✓" : "✗"} ${a.id.padEnd(20)} beat ${a.beat ?? "-"}  ${ok ? "" : "(missing)"}`);
+  if (cmd === "check" || cmd === "nobg") {
+    for (const { a, ok } of rows) console.log(`${ok ? "✓" : "✗"} ${a.id.padEnd(20)} beat ${a.beat ?? "-"}  ${ok ? "(transparent + white ink)" : "(missing)"}`);
+  }
   const planPath = join(dir, "PLAN.md");
   if (existsSync(planPath)) {
     const table = [
       "<!-- assets:start (auto — npm run assets -- <project> check) -->",
       "| asset | بیت | وضعیت | چه چیزی |",
       "|---|---|---|---|",
-      ...rows.map(({ a, ok }) => `| \`${a.id}\` | ${a.beat ?? "-"} | ${ok ? "✅ آماده" : "⏳ منتظر تصویر"} | ${a.subject} |`),
+      ...rows.map(({ a, ok }) => `| \`${a.id}\` | ${a.beat ?? "-"} | ${ok ? "✅ آماده (بدون بک‌گراند + خطوط سفید)" : "⏳ منتظر تصویر"} | ${a.subject} |`),
       "",
       `پرامپت‌ها: \`assets/PROMPTS.md\` — کاراکتر شیت: \`assets/${refName}\` (همیشه ضمیمه شود)`,
       "<!-- assets:end -->",
@@ -134,6 +144,7 @@ if (cmd === "generate") {
       continue;
     }
     writeFileSync(fileFor(a), Buffer.from(b64, "base64"));
-    console.log(`✓ ${a.id} → ${fileFor(a)}`);
+    cleanAssetPng(fileFor(a), { force: true });
+    console.log(`✓ ${a.id} → ${fileFor(a)} (transparent + white ink)`);
   }
 }

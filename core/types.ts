@@ -38,13 +38,35 @@ export type Story = {
   duration?: number;
   /** Optional voice-over file (relative to the project folder). */
   audio?: string;
+  /** Optional background music file (relative to the project folder), ducked under the voice. */
+  bgm?: string;
+  /** Background music volume (0..1, default 0.12). */
+  bgmVolume?: number;
   /** Injected by tools/render.mjs: ids of images present in outputs/<project>/assets/. */
   availableAssets?: string[];
+  /** "portrait" 9:16 (default) or "landscape" 16:9. Ask the user when starting a project. */
+  format?: Format;
+  /** Font preset id from core/fonts.ts (FONT_PRESETS). Default depends on the style. */
+  font?: string;
+  /** Font preset id for subtitles only (ink-wide). Defaults to `font`; scene labels keep `font`. */
+  captionFont?: string;
+  /** Color theme of the style (e.g. ink-dot: "dark" default, "light"). */
+  theme?: string;
 };
 
+export type Format = "portrait" | "landscape";
+
 export const FPS = 30;
+/** Scene coordinate space: every style draws in a 1080×1920 canvas; Reel maps it onto the output frame. */
 export const WIDTH = 1080;
 export const HEIGHT = 1920;
+
+export const FRAME_SIZE: Record<Format, { width: number; height: number }> = {
+  portrait: { width: 1080, height: 1920 },
+  landscape: { width: 1920, height: 1080 },
+};
+
+export const formatOf = (s: Story): Format => (s.format === "landscape" ? "landscape" : "portrait");
 
 /** Convert absolute timing to relative (seconds + beat-relative caption pages). Idempotent. */
 export const normalizeStory = (s: Story): Story => {

@@ -45,3 +45,34 @@ export const loadFont = (family: keyof typeof FAMILIES) => {
 
 export const loadIranYekan = () => loadFont("IRANYekanX");
 export const loadDastNevis = () => loadFont("DastNevis");
+
+/**
+ * Font presets — the ONLY place a style's main font is chosen.
+ * Pick one per project with `"font": "<id>"` in story.json, or override at render time:
+ *   npm run render -- <project> --font iran-yekan
+ * Scenes/captions read the result through the theme, so no component changes are needed.
+ * To add a font: drop the files in assets/fonts, add a family to FAMILIES above, add a preset here.
+ */
+export type FontPreset = {
+  /** CSS font-family (with fallbacks). */
+  family: string;
+  /** Weight used for captions. */
+  weight: number;
+  /** Multiplier on caption/label sizes (fonts differ in optical size). */
+  size: number;
+};
+
+export const FONT_PRESETS = {
+  /** Persian handwriting; IRANYekanX fills missing glyphs (Latin, digits). */
+  "dast-nevis": () => ({ family: `${loadDastNevis()}, ${loadIranYekan()}`, weight: 400, size: 1 }),
+  /** Clean sans with Persian digits. */
+  "iran-yekan": () => ({ family: loadIranYekan(), weight: 600, size: 0.82 }),
+} satisfies Record<string, () => FontPreset>;
+
+export type FontId = keyof typeof FONT_PRESETS;
+
+export const fontPreset = (id: string | undefined, fallback: FontId): FontPreset => {
+  const make = FONT_PRESETS[(id ?? fallback) as FontId];
+  if (!make) throw new Error(`unknown font "${id}". Available: ${Object.keys(FONT_PRESETS).join(", ")}`);
+  return make();
+};

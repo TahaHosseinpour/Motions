@@ -1,0 +1,13 @@
+{
+  "title": "ink-wide preview",
+  "style": "ink-wide",
+  "format": "landscape",
+  "font": "dast-nevis",
+  "theme": "dark",
+  "timing": "relative",
+  "beats": [
+    { "scene": "w-code-cheap", "seconds": 4.8, "captionPos": "bottom", "captions": [{ "at": 0, "text": "نوشتنِ کد دیگه *سخت‌ترین بخشِ* برنامه‌نویسی نیست." }, { "at": 3.1, "text": "هوش مصنوعی اون رو *ارزون* کرده." }] },
+    { "scene": "w-what-matters", "seconds": 5, "captionPos": "bottom", "captions": [{ "at": 0, "text": "چیزی که الان *ارزش* داره اینه" }, { "at": 1.5, "text": "که دقیقاً بدونی *چی می‌خوای*،" }, { "at": 2.9, "text": "و بتونی تشخیص بدی خروجی *درسته یا نه*." }] },
+    { "scene": "w-follow", "seconds": 6, "captionPos": "bottom", "captions": [{ "at": 0, "text": "اگه دوست داری بیشتر بدونی" }, { "at": 4.4, "text": "*استارکوچ* رو فالو کن." }] }
+  ]
+}

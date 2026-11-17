@@ -12,13 +12,14 @@ Motions/
 │   └── assets.mjs       پرامپت/چک/ساخت تصاویر asset (همیشه با کاراکتر شیت استایل)
 ├── assets/fonts/  فونت‌های مشترک (Dast Nevis + IRANYekanX — داخل git نیست)
 ├── styles/        هر استایل یک پوشه + STYLE.md (قوانین طراحی آن استایل)
-│   └── ink-dot/   روایت مینیمال، کاغذ سفید + نقطهٔ مشکی
+│   └── ink-dot/   روایت مینیمال، پس‌زمینهٔ مشکی + نقطه/خط/متن سفید (تم light = کاغذ کرم)
 ├── inputs/        فایل‌های ورودی (صدا، ویدیو، متن)
 └── outputs/       هر پروژه یک پوشه: PLAN.md + story.json + ویدیوی نهایی
 ```
 
 ## روند کار یک پروژهٔ جدید
 
+0. **از کاربر بپرس:** خروجی عمودی ۹:۱۶ (`portrait`) می‌خواهد یا افقی (`landscape`)؟ (و اگر نظری دارد: فونت `dast-nevis` / `iran-yekan`). جواب را در `story.json` → `"format"` / `"font"` بنویس.
 1. فایل‌های ورودی را در `inputs/` بگذار.
 2. (اگر صدا داریم) `npm run transcribe -- inputs/voice.mp3 --project <project>` → در `outputs/<project>/`:
    - `voice.*` (صدای روایت، برای story.audio) · `transcript.raw.json` (پاسخ خام API)
@@ -29,7 +30,9 @@ Motions/
 4. `outputs/<project>/story.json` — طبق `styles/<style>/STYLE.md` (اگر draft داریم: scene هر بیت را انتخاب کن، کپشن را تمیز کن/هایلایت بگذار، `seconds` را دست نزن).
 4.5. (اگر تصویر لازم است) `outputs/<project>/assets.json` → `npm run assets -- <project> prompts` →
      تصاویر را با کاراکتر شیت بساز و در `outputs/<project>/assets/<id>.png` بگذار → `npm run assets -- <project> check`
-5. `npm run render -- <project>` → `outputs/<project>/<project>.mp4`
+5. `npm run render -- <project>` → `outputs/<project>/<project>.mp4` (افقی: `<project>-landscape.mp4`)
+   - بدون ویرایش فایل: `--format landscape|portrait`، `--font iran-yekan|dast-nevis`، `--theme dark|light`
+   - رندر طولانی است: ایجنت خودش اجرا نمی‌کند، دستور را به کاربر می‌دهد.
 
 ## تنظیمات
 

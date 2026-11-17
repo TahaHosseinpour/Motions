@@ -12,9 +12,11 @@ import { agent, checklist, codeWindow, evaluate, writeDoc } from "./ai-build";
 import { follow } from "./cta";
 import { attract, crowdProducts, fastBuild, fillUp, flatline } from "./growth";
 import { clock, crowdBuild, pickDirection } from "./judgement";
+import { SE_SCENES } from "./se-story";
 import { opinions, pillars, question, temple } from "./structure";
 
 export const SCENES: Record<string, SceneDef> = {
+  ...SE_SCENES,
   bill,
   "loaves-buy": loavesBuy,
   "loaves-loss": loavesLoss,

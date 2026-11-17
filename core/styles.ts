@@ -3,6 +3,7 @@
 import React from "react";
 import { Story } from "./types";
 import { inkDot } from "../styles/ink-dot";
+import { inkWide } from "../styles/ink-wide";
 
 export type StyleDef = {
   id: string;
@@ -11,4 +12,4 @@ export type StyleDef = {
   example: Story;
 };
 
-export const STYLES: StyleDef[] = [inkDot];
+export const STYLES: StyleDef[] = [inkDot, inkWide];

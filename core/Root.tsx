@@ -1,7 +1,7 @@
 import React from "react";
 import { Composition } from "remotion";
 import { STYLES } from "./styles";
-import { FPS, HEIGHT, Story, WIDTH, normalizeStory, storyFrames } from "./types";
+import { FPS, FRAME_SIZE, Story, formatOf, normalizeStory, storyFrames } from "./types";
 
 export const Root: React.FC = () => (
   <>
@@ -11,13 +11,13 @@ export const Root: React.FC = () => (
         id={s.id}
         component={s.component}
         fps={FPS}
-        width={WIDTH}
-        height={HEIGHT}
+        {...FRAME_SIZE[formatOf(s.example)]}
         durationInFrames={storyFrames(normalizeStory(s.example))}
         defaultProps={s.example}
         calculateMetadata={({ props }) => {
           const story = normalizeStory(props as Story);
-          return { durationInFrames: storyFrames(story), props: story };
+          // Output size follows story.format (portrait 9:16 / landscape 16:9).
+          return { durationInFrames: storyFrames(story), props: story, ...FRAME_SIZE[formatOf(story)] };
         }}
       />
     ))}
